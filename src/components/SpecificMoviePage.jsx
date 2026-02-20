@@ -17,7 +17,7 @@ function SpecificMoviePage() {
 
     useEffect(() => {
         fetchMovie(movieId);
-    }, [movieId, fetchMovie]);
+    }, []);
 
     if (sloading) {
         return (
@@ -67,7 +67,6 @@ function SpecificMoviePage() {
                     </div>
 
                     <div className="col-12 col-md-8">
-                        {/* Plot */}
                         {smovie.Plot && smovie.Plot !== "N/A" ? (
                             <>
                                 <h5>Description:</h5>
@@ -75,7 +74,6 @@ function SpecificMoviePage() {
                             </>
                         ) : null}
 
-                        {/* Main info */}
                         <h5 className="mt-3">Details:</h5>
                         <Row label="Genre" value={smovie.Genre} />
                         <Row label="Director" value={smovie.Director} />
@@ -86,7 +84,6 @@ function SpecificMoviePage() {
                         <Row label="Awards" value={smovie.Awards} />
                         <Row label="Production" value={smovie.Production} />
 
-                        {/* Ratings */}
                         {ratings.length > 0 ? (
                             <>
                                 <h5 className="mt-3">Ratings:</h5>
@@ -100,16 +97,14 @@ function SpecificMoviePage() {
                             </>
                         ) : null}
 
-                        {/* Numbers */}
                         <h5 className="mt-3">Numbers:</h5>
                         <Row label="IMDB Rating" value={smovie.imdbRating} />
                         <Row label="IMDB Votes" value={smovie.imdbVotes} />
                         <Row label="Metascore" value={smovie.Metascore} />
                         <Row label="BoxOffice" value={smovie.BoxOffice} />
 
-                        {/* Extra */}
-                        <h5 className="mt-3">Extra</h5>
-                        <Row label="Released (DVD)" value={smovie.DVD} />
+                        {smovie.DVD!== "N/A" ? (<><h5 className="mt-3">Extra</h5>
+                            <Row label="Released (DVD)" value={smovie.DVD}/></>) : (<></>)}
 
                         {smovie.Website && smovie.Website !== "N/A" ? (
                             <p className="mb-0">
