@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 
 const SMovieContext = createContext();
 
@@ -6,12 +6,12 @@ const SMovieContext = createContext();
 export const useMovie = () => useContext(SMovieContext);
 
 export const SMovieProvider = ({ children }) => {
-  const [smovie, setSMovie] = useState([]);
-  const [sloading, setSLoading] = useState(false);
+    const [smovie, setSMovie] = useState([]);
+    const [sloading, setSLoading] = useState(false);
 
-  const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_KEY = import.meta.env.VITE_API_KEY;
 
-  const fetchMovie = async (search = "tt1013752") => {
+      const fetchMovie = async (search = "tt1013752") => {
     setSLoading(true);
     try {
       const res = await fetch(
@@ -31,11 +31,9 @@ export const SMovieProvider = ({ children }) => {
     setSLoading(false);
   };
 
-  return (
-    <SMovieContext.Provider
-      value={{ smovie, sloading, fetchMovie }}
-    >
-      {children}
-    </SMovieContext.Provider>
-  );
+    return (
+        <SMovieContext.Provider value={{ smovie, sloading, fetchMovie }}>
+            {children}
+        </SMovieContext.Provider>
+    );
 };

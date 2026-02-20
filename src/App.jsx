@@ -1,11 +1,11 @@
 import {useEffect, useState} from "react";
 import MovieGallery from "./components/MovieGallery";
-import ThemeToggle from "./components/ThemeToggle";
 import WindowSize from "./components/WindowSize";
 import { Routes, Route } from "react-router-dom";
-import { CameraReelsFill } from 'react-bootstrap-icons';
 import Profile from "./components/Profile.jsx";
 import SpecificMoviePage from "./components/SpecificMoviePage.jsx";
+import NavBar from "./components/NavBar.jsx";
+import NotFound from './components/NotFound.jsx';
 
 function App() {
   const [dark, setDark] = useState(() => {
@@ -48,15 +48,13 @@ function App() {
   return (
     <div className={dark ? "bg-dark text-light min-vh-100" : "bg-light min-vh-100"} data-bs-theme={dark ? "dark" : "light"}>
       <div className="container py-4">
-        <div className="d-flex justify-content-between align-items-center">
-          <h1 className="fw-bold"><CameraReelsFill /> Movie Gallery</h1>
-          <ThemeToggle dark={dark} setDark={setDark} />
-        </div>
+        <NavBar dark={dark} setDark={setDark} />
 
         <Routes>
           <Route path="/" element={<MovieGallery dark={dark} />} />
           <Route path="/profile" element={<Profile name={name} setName={setName} job={job} setJob={setJob} desc={desc} setDesc={setDesc} profileEditor={profileEditor} setProfileEditor={setProfileEditor} />} />
-            <Route path="/movie/:movieId" element={<SpecificMoviePage />}/>
+          <Route path="/movie/:movieId" element={<SpecificMoviePage />}/>
+          <Route path="*" element={<NotFound />} />
         </Routes>
         <WindowSize />
       </div>
@@ -65,3 +63,13 @@ function App() {
 }
 
 export default App;
+
+
+
+
+
+
+
+
+
+
