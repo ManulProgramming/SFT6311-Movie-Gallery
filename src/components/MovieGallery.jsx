@@ -12,11 +12,18 @@ function MovieGallery({ dark }) {
       return stored ? JSON.parse(stored) : [];
   });
   const [selected, setSelected] = useState(null);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => {
+      const stored = localStorage.getItem("search");
+      return stored ? stored: "";
+  });
 
   useEffect(() => {
     localStorage.setItem("favorites", JSON.stringify(favorites));
   }, [favorites]);
+
+  useEffect(() => {
+    localStorage.setItem("search", search);
+  }, [search]);
 
   const toggleFavorite = (id) => {
     setFavorites(prev =>
@@ -28,7 +35,7 @@ function MovieGallery({ dark }) {
 
     useEffect(() => {
         const delay = setTimeout(() => {
-            fetchMovies("Fast & Furious");
+            fetchMovies(search || "Fast & Furious");
         }, 100);
 
         return () => clearTimeout(delay);
