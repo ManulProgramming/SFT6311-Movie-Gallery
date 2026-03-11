@@ -5,11 +5,6 @@
   min-height: 100vh;
 }
 
-/*.dark {
-  background: #1e1e1e;
-  color: white;
-}*/
-
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

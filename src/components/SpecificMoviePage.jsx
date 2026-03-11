@@ -1,19 +1,48 @@
 import { useParams } from "react-router-dom";
 import { useMovie } from "../context/SMovieContext.jsx";
-import { useEffect } from "react";
-
-function Row({ label, value }) {
-    if (!value || value === "N/A") return null;
-    return (
-        <p className="mb-2">
-            <b>{label}:</b> {value}
-        </p>
-    );
-}
+import {useEffect} from "react";
 
 function SpecificMoviePage() {
     const { movieId } = useParams();
-    const { smovie, sloading, fetchMovie } = useMovie();
+    const { smovie, setSMovie, sloading, fetchMovie, editMovie } = useMovie();
+
+    const handleChange = (e) => {
+      let regex = /.+/;
+      if (e.target.name === "Release_Date") {
+          regex = /^[1-2][0189][0-9][0-9]-[0-1][0-9]-[0-3][0-9]$/;
+      }else if (e.target.name === "Genre") {
+          regex = /^[a-zA-Z0-9_, -]+$/;
+      }else if (e.target.name === "Poster") {
+          regex = /^https?:\/\/[^\s/$.?#].[^\s]*\.(?:jpg|jpeg|png|gif|webp|svg|bmp|ico)(?:\?[^\s#]*)?(?:#[^\s]*)?$/;
+      }
+      let isValid = regex.test(e.target.value);
+      if (isValid) {
+          e.target.classList.add('is-valid');
+          e.target.classList.remove('is-invalid');
+      }else{
+          e.target.classList.remove('is-valid');
+          e.target.classList.add('is-invalid');
+      }
+      console.log(e.target.name)
+    setSMovie({ ...smovie, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!smovie.Title) return;
+    if (/^[1-2][0189][0-9][0-9]-[0-1][0-9]-[0-3][0-9]$/.test(smovie.Release_Date) && /^[a-zA-Z0-9_, -]+$/.test(smovie.Genre)
+    && /^https?:\/\/[^\s/$.?#].[^\s]*\.(?:jpg|jpeg|png|gif|webp|svg|bmp|ico)(?:\?[^\s#]*)?(?:#[^\s]*)?$/.test(smovie.Poster_Url)) {
+        editMovie({
+            index: smovie.index,
+            Release_Date: smovie.Release_Date,
+            Title: smovie.Title,
+            Overview: smovie.Overview,
+            Original_Language: smovie.Original_Language,
+            Genre: smovie.Genre,
+            Poster_Url: smovie.Poster_Url
+        });
+    }
+  };
 
     useEffect(() => {
         fetchMovie(movieId);
@@ -35,27 +64,28 @@ function SpecificMoviePage() {
         );
     }
 
-    const ratings = Array.isArray(smovie.Ratings) ? smovie.Ratings : [];
+    let Release_year = "Unknown";
+    if (smovie.Release_Date) {
+        Release_year = smovie.Release_Date.split("-")[0];
+    }
 
     return (
         <div className="card shadow-sm mt-3">
             <div className="card-header">
                 <h4 className="mb-0">
-                    {smovie.Title} ({smovie.Year})
+                    {smovie.Title} ({Release_year})
                 </h4>
                 <div className="text-muted">
-                    {smovie.Type?.toUpperCase()} • {smovie.Rated !== "N/A" ? smovie.Rated : null}
-                    {smovie.Runtime !== "N/A" ? ` • ${smovie.Runtime}` : ""}
-                    {smovie.Released !== "N/A" ? ` • Released: ${smovie.Released}` : ""}
+                    Movie - {smovie.Original_Language !== "N/A" ? smovie.Original_Language : null}
                 </div>
             </div>
 
             <div className="card-body container">
-                <div className="row g-4">
+                <form className="row g-4" onSubmit={handleSubmit}>
                     <div className="col-12 col-md-4">
-                        {smovie.Poster && smovie.Poster !== "N/A" ? (
+                        {smovie.Poster_Url && smovie.Poster_Url !== "N/A" ? (
                             <img
-                                src={smovie.Poster}
+                                src={smovie.Poster_Url}
                                 alt={`${smovie.Title} poster`}
                                 className="img-fluid rounded"
                             />
@@ -64,58 +94,50 @@ function SpecificMoviePage() {
                                 No poster
                             </div>
                         )}
+                        <input className="form-control mb-2"
+                               name="Poster_Url"
+                               placeholder="Poster URL"
+                               value={smovie.Poster_Url}
+                               onChange={handleChange}
+                        />
                     </div>
 
                     <div className="col-12 col-md-8">
-                        {smovie.Plot && smovie.Plot !== "N/A" ? (
-                            <>
-                                <h5>Description:</h5>
-                                <p className="mb-3">{smovie.Plot}</p>
-                            </>
-                        ) : null}
+                        <h5>Description:</h5>
+                        <textarea className="form-control mb-2"
+                               name="Overview"
+                               placeholder="Overview"
+                                  rows="4"
+                                  cols="50"
+                               onChange={handleChange}
+                        >{smovie.Overview}</textarea>
 
                         <h5 className="mt-3">Details:</h5>
-                        <Row label="Genre" value={smovie.Genre} />
-                        <Row label="Director" value={smovie.Director} />
-                        <Row label="Writer" value={smovie.Writer} />
-                        <Row label="Actors" value={smovie.Actors} />
-                        <Row label="Language" value={smovie.Language} />
-                        <Row label="Country" value={smovie.Country} />
-                        <Row label="Awards" value={smovie.Awards} />
-                        <Row label="Production" value={smovie.Production} />
-
-                        {ratings.length > 0 ? (
-                            <>
-                                <h5 className="mt-3">Ratings:</h5>
-                                <ul className="mb-3">
-                                    {ratings.map((r) => (
-                                        <li key={r.Source}>
-                                            <b>{r.Source}:</b> {r.Value}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </>
-                        ) : null}
+                        <label><b>Genre:</b> <input className="form-control mb-2"
+                                                    name="Genre"
+                                                    placeholder="Genre"
+                                                    value={smovie.Genre}
+                                                    onChange={handleChange}
+                        /></label>
+                        <label><b>Original Language:</b> <input className="form-control mb-2"
+                                                                name="Original_Language"
+                                                                placeholder="Language"
+                                                                value={smovie.Original_Language}
+                                                                onChange={handleChange}
+                        /></label>
+                        <label><b>Released:</b> <input className="form-control mb-2"
+                                                       name="Release_Date"
+                                                       placeholder="Date (YYYY-MM-DD)"
+                                                       value={smovie.Release_Date}
+                                                       onChange={handleChange}
+                        /></label>
 
                         <h5 className="mt-3">Numbers:</h5>
-                        <Row label="IMDB Rating" value={smovie.imdbRating} />
-                        <Row label="IMDB Votes" value={smovie.imdbVotes} />
-                        <Row label="Metascore" value={smovie.Metascore} />
-                        <Row label="BoxOffice" value={smovie.BoxOffice} />
-
-                        {smovie.DVD!== "N/A" ? (<><h5 className="mt-3">Extra</h5>
-                            <Row label="Released (DVD)" value={smovie.DVD}/></>) : (<></>)}
-
-                        {smovie.Website && smovie.Website !== "N/A" ? (
-                            <p className="mb-0">
-                                <b>Website:</b>{" "}
-                                <a href={smovie.Website} target="_blank" rel="noreferrer">
-                                    {smovie.Website}
-                                </a>
-                            </p>
-                        ) : null}
+                        <p className="mb-2"><b>IMDB Rating: </b> {smovie.Vote_Average}</p>
+                        <p className="mb-2"><b>IMDB Votes: </b> {smovie.Vote_Count}</p>
                     </div>
-                </div>
+                    <button className="btn btn-success">Save</button>
+                </form>
             </div>
         </div>
     );

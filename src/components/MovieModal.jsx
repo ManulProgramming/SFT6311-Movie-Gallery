@@ -8,11 +8,18 @@ function MovieModal({movie, close}) {
     const {smovie, sloading, fetchMovie} = useMovie();
     useEffect(() => {
         const delay = setTimeout(() => {
-            fetchMovie(movie.imdbID);
+            fetchMovie(movie.index);
         }, 100);
 
         return () => clearTimeout(delay);
     }, []);
+    if (!smovie){
+        return (
+            <div className="text-center my-3">
+                <div className="spinner-border text-primary"></div>
+            </div>
+        )
+    }
     return (
 
         <div className="modal modal-overlay show d-block" onClick={close}>
@@ -30,11 +37,10 @@ function MovieModal({movie, close}) {
                                 </div>
 
                         ) : (<>
-                                <p>{smovie.Plot}</p>
-                                <p><b>Creator</b> {smovie.Director}</p>
+                                <p>{smovie.Overview}</p>
                                 <p><b>Genre</b> {smovie.Genre}</p>
-                            <RatingTimer rating={smovie.imdbRating}/>
-                            <ReviewManager movieId={smovie.imdbID}/>
+                            <RatingTimer rating={smovie.Vote_Average}/>
+                            <ReviewManager movieId={movie.index}/>
                             </>)}
                         {!smovie ? (<>Error occurred! Movie details not found!</>) : (<></>)}
                     </div>

@@ -11,17 +11,39 @@ export const MovieProvider = ({ children }) => {
 
   const API_KEY = import.meta.env.VITE_API_KEY;
 
-  const fetchMovies = async (search = "Fast & Furious") => {
+  const addMovie = async (movie) => {
+    setLoading(true);
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(movie)
+    };
+    try{
+      const res = await fetch(
+          `http://127.0.0.1:8000/movies`, requestOptions
+      );
+      const data = await res.json();
+      if (data) {
+        setMovies(data);
+      } else {
+        setMovies([]);
+      }
+    }catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
+  }
+
+  const fetchMovies = async (search) => {
     setLoading(true);
     try {
       const res = await fetch(
-        `https://www.omdbapi.com/?apikey=${API_KEY}&s=${encodeURIComponent(search)}`
+        `http://127.0.0.1:8000/movies?s=${encodeURIComponent(search)}`
       );
       //const res=""
       const data = await res.json();
-      console.log(data);
-      if (data.Search) {
-        setMovies(data.Search);
+      if (data) {
+        setMovies(data);
       } else {
         setMovies([]);
       }
@@ -33,7 +55,7 @@ export const MovieProvider = ({ children }) => {
 
   return (
     <MovieContext.Provider
-      value={{ movies, loading, fetchMovies }}
+      value={{ movies, loading, fetchMovies, addMovie }}
     >
       {children}
     </MovieContext.Provider>
