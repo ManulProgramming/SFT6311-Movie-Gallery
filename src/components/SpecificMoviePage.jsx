@@ -1,10 +1,20 @@
-import { useParams } from "react-router-dom";
+import {redirect, useParams} from "react-router-dom";
 import { useMovie } from "../context/SMovieContext.jsx";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
+import { useNavigate } from "react-router-dom";
 
 function SpecificMoviePage() {
     const { movieId } = useParams();
-    const { smovie, setSMovie, sloading, fetchMovie, editMovie } = useMovie();
+    const navigate = useNavigate();
+    const { smovie, setSMovie, sloading, error, fetchMovie, editMovie, deleteMovie } = useMovie();
+
+    const [favorites, setFavorites] = useState(() => {
+        const stored = localStorage.getItem("favorites");
+        return stored ? JSON.parse(stored) : [];
+    });
+    useEffect(() => {
+        localStorage.setItem("favorites", JSON.stringify(favorites));
+    }, [favorites]);
 
     const handleChange = (e) => {
       let regex = /.+/;
@@ -43,6 +53,12 @@ function SpecificMoviePage() {
         });
     }
   };
+  const handleDelete = (e) => {
+      e.preventDefault();
+      setFavorites(prev => prev.filter(f => f !== smovie.index));
+      deleteMovie({index: smovie.index});
+      navigate("/");
+  }
 
     useEffect(() => {
         fetchMovie(movieId);
@@ -54,6 +70,14 @@ function SpecificMoviePage() {
                 <div className="spinner-border text-primary"></div>
             </div>
         );
+    }
+
+    if (error) {
+        return (
+            <div className="alert alert-danger mt-3">
+                Error occurred! {error}
+            </div>
+        )
     }
 
     if (!smovie) {
@@ -137,6 +161,9 @@ function SpecificMoviePage() {
                         <p className="mb-2"><b>IMDB Votes: </b> {smovie.Vote_Count}</p>
                     </div>
                     <button className="btn btn-success">Save</button>
+                </form>
+                <form className="row g-4 mt-1" onSubmit={handleDelete}>
+                    <button className="btn btn-danger">Delete</button>
                 </form>
             </div>
         </div>

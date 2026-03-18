@@ -5,14 +5,17 @@ import MovieModal from "./MovieModal";
 import MovieControls from "./MovieControls";
 import MovieStats from "./MovieStats";
 import AddMovieForm from "./AddMovieForm.jsx";
+import useFilter from "../hooks/useFilter.jsx";
+import useModal from "../hooks/useModal.jsx";
 
 function MovieGallery({dark}) {
-    const {movies, loading, fetchMovies } = useMovies();
+    const {movies, loading, error, fetchMovies } = useMovies();
     const [favorites, setFavorites] = useState(() => {
         const stored = localStorage.getItem("favorites");
         return stored ? JSON.parse(stored) : [];
     });
-    const [selected, setSelected] = useState(null);
+    //const [selected, setSelected] = useState(false);
+    const { selected, open, close } = useModal();
     const [search, setSearch] = useState(() => {
         const stored = localStorage.getItem("search");
         return stored ? stored : "";
@@ -42,23 +45,7 @@ function MovieGallery({dark}) {
 
         return () => clearTimeout(delay);
     }, []);
-    const filteredMovies = useMemo(() => {
-        let result = movies;
-
-        if (sortBy === "rating") {
-            result = [...result].sort(
-                (a, b) => (b.Vote_Average || 0) - (a.Vote_Average || 0)
-            );
-        }
-
-        if (sortBy === "genre") {
-            result = [...result].sort(
-                (a, b) => (a.Genre || "").localeCompare(b.Genre || "")
-            );
-        }
-
-        return result;
-    }, [movies, sortBy]);
+    const {filtered: filteredMovies} = useFilter(movies,sortBy);
 
     return (
         <>
@@ -74,31 +61,30 @@ function MovieGallery({dark}) {
 
             <AddMovieForm />
 
-            <div className="row g-4 mt-2">
+            <div className="row g-4 mt-2" data-testid="movie-list-data">
                 {loading && (
                     <div className="text-center my-3">
                         <div className="spinner-border text-primary"></div>
                     </div>
                 )}
-                {filteredMovies.length > 0 ? filteredMovies.map(movie => (
+                {error && (
+                    <div className="alert alert-danger">{error}</div>
+                )}
+                {filteredMovies != null ? (filteredMovies.length > 0 ? filteredMovies.map(movie => (
                     <div className="col-md-4" key={movie.index}>
                         <MovieCard
                             movie={movie}
                             isFavorite={favorites.includes(movie.index)}
                             toggleFavorite={toggleFavorite}
-                            setSelected={setSelected}
+                            open={open}
                             dark={dark}
                         />
                     </div>
-                )) : (
-                    <p>
-                        Nothing found
-                    </p>
-                )}
+                )) : (<></>)) : (<></>)}
             </div>
 
             {selected && (
-                <MovieModal movie={selected} close={() => setSelected(null)}/>
+                <MovieModal movie={selected} close={close}/>
             )}
         </>
     );

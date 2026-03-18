@@ -1,58 +1,17 @@
-import {useCallback, useState} from "react";
+import {useCallback} from "react";
 import { useMovies } from "../context/MovieContext";
+import useForm from "../hooks/useForm";
 
 function AddMovieForm() {
   const { addMovie } = useMovies();
 
-  const [form, setForm] = useState({
-    title: "",
-    date: "",
-    genre: "",
-    rating: "",
+  const { form, handleChange, reset } = useForm({
+      title: "",
+      date: "",
+      genre: "",
+      rating: "",
       poster: ""
-  });
-
-  const handleChange = useCallback((e) => {
-      let regex = /^.+$/;
-      let helpBlock;
-      let helpBlockInnerText = "Something went wrong.";
-      if (e.target.name === "date") {
-          regex = /^[1-2][0189][0-9][0-9]-[0-1][0-9]-[0-3][0-9]$/;
-          helpBlock = document.getElementById("dateHelpBlock");
-          helpBlockInnerText = "Date needs to be in YYYY-MM-DD format.";
-      }else if (e.target.name === "genre") {
-          regex = /^[a-zA-Z0-9_, -]+$/;
-          helpBlock = document.getElementById("genreHelpBlock");
-          helpBlockInnerText = "Genre should be seperated by comma and contain only letters and digits.";
-      }else if (e.target.name === "rating") {
-          regex = /^[0-9]{1,2}\.?[0-9]?$/;
-          helpBlock = document.getElementById("ratingHelpBlock");
-          helpBlockInnerText = "Rating should be a floating number from 0 to 10 inclusively."
-      }else if (e.target.name === "poster") {
-          regex = /^https?:\/\/[^\s/$.?#].[^\s]*\.(?:jpg|jpeg|png|gif|webp|svg|bmp|ico)(?:\?[^\s#]*)?(?:#[^\s]*)?$/;
-          helpBlock = document.getElementById("posterHelpBlock");
-          helpBlockInnerText = "Poster link is not valid."
-      }
-      let isValid = regex.test(e.target.value);
-      if (isValid) {
-          e.target.classList.add('is-valid');
-          e.target.classList.remove('is-invalid');
-          if (helpBlock) {
-              helpBlock.classList.add('text-muted');
-              helpBlock.classList.remove('text-danger');
-              helpBlock.innerText = "";
-          }
-      }else{
-          e.target.classList.remove('is-valid');
-          e.target.classList.add('is-invalid');
-          if (helpBlock) {
-              helpBlock.classList.remove('text-muted');
-              helpBlock.classList.add('text-danger');
-              helpBlock.innerText = helpBlockInnerText;
-          }
-      }
-    setForm({ ...form, [e.target.name]: e.target.value });
-  }, [form]);
+    });
 
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
@@ -72,9 +31,9 @@ function AddMovieForm() {
         });
 
 
-        setForm({ title: "", date: "", genre: "", rating: "", poster: "" });
+        reset();
     }
-  },[addMovie, form.date, form.genre, form.poster, form.rating, form.title]);
+  },[addMovie, form.date, form.genre, form.poster, form.rating, form.title, reset]);
 
   return (
       <form className="card p-3 my-4" onSubmit={handleSubmit}>

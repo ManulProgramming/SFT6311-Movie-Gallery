@@ -10,7 +10,7 @@ from pydantic import BaseModel
 class Movie(BaseModel):
     index: int | None = -1
     Release_Date: str | None = ""
-    Title: str
+    Title: str | None = ""
     Overview: str | None = ""
     Popularity: int | None = 0
     Vote_Count: int | None = 0
@@ -95,6 +95,15 @@ async def edit_movie(movie: Movie):
     df.iloc[movie_data.get("index")] = row
     df.to_csv("9000plus.csv", encoding='utf-8', index=False)
     return loads(pd.DataFrame([row]).reset_index().to_json(orient='records'))
+
+@app.delete('/movies')
+async def delete_movie(movie: Movie):
+    global df
+    movie_data = movie.model_dump()
+    df = df.drop(movie_data.get("index"),axis=0)
+    df.to_csv("9000plus.csv", encoding='utf-8', index=False)
+    res = df.sort_values(by=["Popularity"], ascending=False)
+    return True
 
 if __name__=='__main__':
     uvicorn.run(app, host='127.0.0.1', port=8000)

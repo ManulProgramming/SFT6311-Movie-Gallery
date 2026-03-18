@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-function MovieCard({ movie, isFavorite, toggleFavorite, setSelected, dark }) {
+function MovieCard({ movie, isFavorite, toggleFavorite, open, dark }) {
   const [hover, setHover] = useState(false);
 
   return (
@@ -39,7 +39,7 @@ function MovieCard({ movie, isFavorite, toggleFavorite, setSelected, dark }) {
 
           <button
               className="btn btn-primary"
-              onClick={() => setSelected(movie)}
+              onClick={() => open(movie)}
           >
             Details
           </button>

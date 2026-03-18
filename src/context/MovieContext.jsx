@@ -1,4 +1,5 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext } from "react";
+import useFetch from "../hooks/useFetch.jsx";
 
 const MovieContext = createContext();
 
@@ -6,8 +7,9 @@ const MovieContext = createContext();
 export const useMovies = () => useContext(MovieContext);
 
 export const MovieProvider = ({ children }) => {
-  const [movies, setMovies] = useState([]);
-  const [loading, setLoading] = useState(false);
+  /*const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(false);*/
+  const {data: movies, setData: setMovies, loading, setLoading, error, setError, fetchData} = useFetch('http://127.0.0.1:8000/movies?s=');
 
   const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -26,36 +28,21 @@ export const MovieProvider = ({ children }) => {
       if (data) {
         setMovies(data);
       } else {
+        setError("Data not found!");
         setMovies([]);
       }
     }catch (err) {
+      setError(err.message);
       console.error(err);
     }
     setLoading(false);
   }
 
-  const fetchMovies = async (search) => {
-    setLoading(true);
-    try {
-      const res = await fetch(
-        `http://127.0.0.1:8000/movies?s=${encodeURIComponent(search)}`
-      );
-      //const res=""
-      const data = await res.json();
-      if (data) {
-        setMovies(data);
-      } else {
-        setMovies([]);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-    setLoading(false);
-  };
+  function fetchMovies(search){fetchData(search);}
 
   return (
     <MovieContext.Provider
-      value={{ movies, loading, fetchMovies, addMovie }}
+      value={{ movies, loading, error, fetchMovies, addMovie }}
     >
       {children}
     </MovieContext.Provider>

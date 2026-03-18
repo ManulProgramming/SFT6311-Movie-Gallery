@@ -1,4 +1,5 @@
 import ProfileEditor from "./ProfileEditor.jsx";
+import {Link} from 'react-router-dom';
 
 function Profile({name, setName, job, setJob, desc, setDesc, profileEditor, setProfileEditor}) {
     const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
@@ -29,7 +30,7 @@ function Profile({name, setName, job, setJob, desc, setDesc, profileEditor, setP
                 <ul className="list-group">
                     {favorites.length>0 ? favorites.map((id) => (
                         <li key={id} className="list-group-item">
-                            <a href={`/movie/${id}`} className="text-decoration-none">{id}</a>
+                            <Link to={`/movie/${id}`} className="text-decoration-none">{id}</Link>
                         </li>
                     )): (
                           <p>No favorites yet :o</p>
