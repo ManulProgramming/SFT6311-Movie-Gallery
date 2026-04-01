@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState } from "react";
 import useFetch from "../hooks/useFetch.jsx";
 
 const MovieContext = createContext();
@@ -7,8 +7,7 @@ const MovieContext = createContext();
 export const useMovies = () => useContext(MovieContext);
 
 export const MovieProvider = ({ children }) => {
-  /*const [movies, setMovies] = useState([]);
-  const [loading, setLoading] = useState(false);*/
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const {data: movies, setData: setMovies, loading, setLoading, error, setError, fetchData} = useFetch('http://127.0.0.1:8000/movies?s=');
 
   const API_KEY = import.meta.env.VITE_API_KEY;
@@ -42,7 +41,7 @@ export const MovieProvider = ({ children }) => {
 
   return (
     <MovieContext.Provider
-      value={{ movies, loading, error, fetchMovies, addMovie }}
+      value={{ movies, loading, error, fetchMovies, addMovie, isAuthenticated, setIsAuthenticated }}
     >
       {children}
     </MovieContext.Provider>

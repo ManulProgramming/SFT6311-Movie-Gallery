@@ -51,19 +51,3 @@ function MovieModal({movie, close}) {
 }
 
 export default MovieModal;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

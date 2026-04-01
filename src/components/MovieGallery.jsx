@@ -1,12 +1,14 @@
-import {useMemo, useState, useEffect} from "react";
+import {useState, useEffect} from "react";
 import {useMovies} from "../context/MovieContext";
 import MovieCard from "./MovieCard";
-import MovieModal from "./MovieModal";
+import React, { lazy, Suspense } from "react";
+
+const MovieModal = lazy(() => import("./MovieModal"));
 import MovieControls from "./MovieControls";
 import MovieStats from "./MovieStats";
 import AddMovieForm from "./AddMovieForm.jsx";
-import useFilter from "../hooks/useFilter.jsx";
 import useModal from "../hooks/useModal.jsx";
+import FilterableMovies from "./FilterableMovies";
 
 function MovieGallery({dark}) {
     const {movies, loading, error, fetchMovies } = useMovies();
@@ -14,13 +16,11 @@ function MovieGallery({dark}) {
         const stored = localStorage.getItem("favorites");
         return stored ? JSON.parse(stored) : [];
     });
-    //const [selected, setSelected] = useState(false);
     const { selected, open, close } = useModal();
     const [search, setSearch] = useState(() => {
         const stored = localStorage.getItem("search");
         return stored ? stored : "";
     });
-    const [sortBy, setSortBy] = useState("");
 
     useEffect(() => {
         localStorage.setItem("favorites", JSON.stringify(favorites));
@@ -39,15 +39,12 @@ function MovieGallery({dark}) {
     };
 
     useEffect(() => {
-        const delay = setTimeout(() => {
-            fetchMovies(search);
-        }, 100);
-
-        return () => clearTimeout(delay);
-    }, []);
-    const {filtered: filteredMovies} = useFilter(movies,sortBy);
+        fetchMovies(search);
+    }, [search]);
 
     return (
+        <FilterableMovies movies={movies}>
+            {({ filteredMovies, sortBy, setSortBy }) => (
         <>
             <MovieStats favoritesCount={favorites.length}/>
 
@@ -78,15 +75,35 @@ function MovieGallery({dark}) {
                             toggleFavorite={toggleFavorite}
                             open={open}
                             dark={dark}
-                        />
+                        >
+                            <MovieCard.Header />
+                            <MovieCard.Body />
+                            <MovieCard.Footer />
+                        </MovieCard>
                     </div>
                 )) : (<></>)) : (<></>)}
             </div>
 
             {selected && (
-                <MovieModal movie={selected} close={close}/>
+                <Suspense
+                    fallback={
+                        <div className="modal modal-overlay show d-block">
+                            <div className="modal-dialog">
+                                <div className="modal-content">
+                                    <div className="modal-body text-center">
+                                        <div className="spinner-border text-primary"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                >
+                    <MovieModal movie={selected} close={close}/>
+                </Suspense>
             )}
         </>
+            )}
+        </FilterableMovies>
     );
 }
 

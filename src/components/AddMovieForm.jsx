@@ -1,9 +1,12 @@
-import {useCallback} from "react";
+import { useCallback, useRef } from "react";
 import { useMovies } from "../context/MovieContext";
 import useForm from "../hooks/useForm";
 
 function AddMovieForm() {
   const { addMovie } = useMovies();
+  const dateRef = useRef();
+  const genreRef = useRef();
+  const posterRef = useRef();
 
   const { form, handleChange, reset } = useForm({
       title: "",
@@ -15,25 +18,31 @@ function AddMovieForm() {
 
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
+    const date = dateRef.current.value;
+    const genre = genreRef.current.value;
+    const poster = posterRef.current.value;
     if (!form.title || !form.rating) return;
-    if (/^[1-2][0189][0-9][0-9]-[0-1][0-9]-[0-3][0-9]$/.test(form.date) && /^[a-zA-Z0-9_, -]+$/.test(form.genre) && /^[0-9]{1,2}\.?[0-9]?$/.test(form.rating)
-    && /^https?:\/\/[^\s/$.?#].[^\s]*\.(?:jpg|jpeg|png|gif|webp|svg|bmp|ico)(?:\?[^\s#]*)?(?:#[^\s]*)?$/.test(form.poster)) {
+    if (/^[1-2][0189][0-9][0-9]-[0-1][0-9]-[0-3][0-9]$/.test(date) && /^[a-zA-Z0-9_, -]+$/.test(genre) && /^[0-9]{1,2}\.?[0-9]?$/.test(form.rating)
+    && /^https?:\/\/[^\s/$.?#].[^\s]*\.(?:jpg|jpeg|png|gif|webp|svg|bmp|ico)(?:\?[^\s#]*)?(?:#[^\s]*)?$/.test(poster)) {
         addMovie({
-            Release_Date: form.date,
+            Release_Date: date,
             Title: form.title,
             Overview: "N/A",
             Popularity: 0,
             Vote_Count: 1,
             Vote_Average: form.rating,
             Original_Language: "N/A",
-            Genre: form.genre,
-            Poster_Url: form.poster
+            Genre: genre,
+            Poster_Url: poster
         });
 
 
         reset();
+        dateRef.current.value = "";
+        genreRef.current.value = "";
+        posterRef.current.value = "";
     }
-  },[addMovie, form.date, form.genre, form.poster, form.rating, form.title, reset]);
+  },[addMovie, form.title, form.rating, reset]);
 
   return (
       <form className="card p-3 my-4" onSubmit={handleSubmit}>
@@ -46,21 +55,21 @@ function AddMovieForm() {
                  onChange={handleChange}
           />
 
-          <input className="form-control mb-2"
-                 name="date"
-                 placeholder="Date (YYYY-MM-DD)"
-                 value={form.date}
-                 onChange={handleChange}
+          <input
+              className="form-control mb-2"
+              name="date"
+              placeholder="Date (YYYY-MM-DD)"
+              ref={dateRef}
           />
           <div id="dateHelpBlock" className="form-text">
 
           </div>
 
-          <input className="form-control mb-2"
-                 name="genre"
-                 placeholder="Genre"
-                 value={form.genre}
-                 onChange={handleChange}
+          <input
+              className="form-control mb-2"
+              name="genre"
+              placeholder="Genre"
+              ref={genreRef}
           />
           <div id="genreHelpBlock" className="form-text">
 
@@ -81,11 +90,11 @@ function AddMovieForm() {
 
           </div>
 
-          <input className="form-control mb-2"
-                 name="poster"
-                 placeholder="Poster URL"
-                 value={form.poster}
-                 onChange={handleChange}
+          <input
+              className="form-control mb-2"
+              name="poster"
+              placeholder="Poster URL"
+              ref={posterRef}
           />
           <div id="posterHelpBlock" className="form-text">
 

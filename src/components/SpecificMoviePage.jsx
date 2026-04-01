@@ -2,7 +2,9 @@ import {redirect, useParams} from "react-router-dom";
 import { useMovie } from "../context/SMovieContext.jsx";
 import {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
+import withAuth from "../hoc/withAuth.jsx";
 
+// eslint-disable-next-line react-refresh/only-export-components
 function SpecificMoviePage() {
     const { movieId } = useParams();
     const navigate = useNavigate();
@@ -170,4 +172,5 @@ function SpecificMoviePage() {
     );
 }
 
-export default SpecificMoviePage;
+// eslint-disable-next-line react-refresh/only-export-components
+export default withAuth(SpecificMoviePage);

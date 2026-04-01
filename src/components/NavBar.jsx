@@ -15,16 +15,17 @@ function NavBar({dark, setDark}) {
                 <div className="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                         <li className="nav-item">
-                            <Link to={`/`} className="nav-link" style={{ cursor: "pointer" }}>Home</Link>
+                            <Link to={`/`} className="nav-link" style={{cursor: "pointer"}}>Home</Link>
                         </li>
                         <li className="nav-item">
-                            <Link to={`/profile`} className="nav-link" style={{ cursor: "pointer" }}>Profile</Link>
+                            <Link to={`/profile`} className="nav-link" style={{cursor: "pointer"}}>Profile</Link>
                         </li>
                     </ul>
-                    <ThemeToggle dark={dark} setDark={setDark} />
+                    <ThemeToggle dark={dark} setDark={setDark}/>
                 </div>
             </div>
         </nav>
     )
 }
+
 export default NavBar;

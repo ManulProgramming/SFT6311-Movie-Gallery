@@ -1,51 +1,84 @@
-import React, { useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import { Link } from "react-router-dom";
 
-function MovieCard({ movie, isFavorite, toggleFavorite, open, dark }) {
-  const [hover, setHover] = useState(false);
+const MovieCardContext = createContext();
+export const useMovieCard = () => useContext(MovieCardContext);
 
-  return (
-      <div
-          className={`card shadow-sm h-100 ${hover ? "scale" : ""} ${dark ? "dark" : ""}`}
-          onMouseEnter={() => setHover(true)}
-          onMouseLeave={() => setHover(false)}
-          style={{transition: "0.3s"}}
-      >
+function MovieCard({ movie, isFavorite, toggleFavorite, open, dark, children }) {
+    const [hover, setHover] = useState(false);
 
-          <Link
-              to={`/movie/${movie.index}`}
-              className="text-decoration-none"
-              style={{ cursor: "pointer" }}
-          >
-              <img src={movie.Poster_Url} className="card-img-top" alt={`${movie.Title} poster`} />
-          </Link>
+    return (
+        <MovieCardContext.Provider
+            value={{ movie, isFavorite, toggleFavorite, open, dark, hover }}
+        >
+            <div
+                className={`card shadow-sm h-100 ${hover ? "scale" : ""} ${dark ? "dark" : ""}`}
+                onMouseEnter={() => setHover(true)}
+                onMouseLeave={() => setHover(false)}
+                style={{ transition: "0.3s" }}
+            >
+                {children}
+            </div>
+        </MovieCardContext.Provider>
+    );
+}
+MovieCard.Header = function Header() {
+    const { movie } = useContext(MovieCardContext);
+
+    return (
+        <Link
+            to={`/movie/${movie.index}`}
+            className="text-decoration-none"
+        >
+            <img
+                src={movie.Poster_Url}
+                className="card-img-top"
+                alt={`${movie.Title} poster`}
+            />
+        </Link>
+    );
+};
+MovieCard.Body = function Body() {
+    const { movie, dark } = useContext(MovieCardContext);
+
+    return (
         <div className="card-body">
             <h5 className="mb-3">
                 <Link
                     to={`/movie/${movie.index}`}
                     className={`${dark ? "text-light" : "text-dark"} text-decoration-none`}
-                    style={{ cursor: "pointer" }}
                 >
                     {movie.Title}
                 </Link>
             </h5>
-
-          <button
-              className={`btn ${isFavorite ? "btn-danger" : "btn-outline-danger"} me-2`}
-              onClick={() => toggleFavorite(movie.index)}
-          >
-            {isFavorite ? "Remove" : "Favorite"}
-          </button>
-
-          <button
-              className="btn btn-primary"
-              onClick={() => open(movie)}
-          >
-            Details
-          </button>
         </div>
-      </div>
-  );
-}
+    );
+};
+MovieCard.Footer = function Footer() {
+    const { movie, isFavorite, toggleFavorite, open } = useContext(MovieCardContext);
 
-export default React.memo(MovieCard);
+    return (
+        <div className="card-body pt-0">
+            <button
+                className={`btn ${isFavorite ? "btn-danger" : "btn-outline-danger"} me-2`}
+                onClick={() => toggleFavorite(movie.index)}
+            >
+                {isFavorite ? "Remove" : "Favorite"}
+            </button>
+
+            <button
+                className="btn btn-primary"
+                onClick={() => open(movie)}
+            >
+                Details
+            </button>
+        </div>
+    );
+};
+const MemoizedMovieCard = React.memo(MovieCard);
+
+MemoizedMovieCard.Header = MovieCard.Header;
+MemoizedMovieCard.Body = MovieCard.Body;
+MemoizedMovieCard.Footer = MovieCard.Footer;
+
+export default MemoizedMovieCard;

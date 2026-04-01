@@ -7,8 +7,6 @@ const SMovieContext = createContext();
 export const useMovie = () => useContext(SMovieContext);
 
 export const SMovieProvider = ({ children }) => {
-    /*const [smovie, setSMovie] = useState(null);
-    const [sloading, setSLoading] = useState(false);*/
     const {data: smovie, setData: setSMovie, loading: sloading, setLoading: setSLoading, error, setError, fetchData} = useFetch('http://127.0.0.1:8000/movies?i=');
 
     const API_KEY = import.meta.env.VITE_API_KEY;
